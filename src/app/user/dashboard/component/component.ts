@@ -1,0 +1,1 @@
+// This folder contains the component for the dashboard module
