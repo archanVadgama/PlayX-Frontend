@@ -13,9 +13,9 @@ src/
 │   │   └── services/                       # Shared services (e.g., API, utils)
 │
 │   ├── layout/                             # Layouts (header/sidebar/footer)
-│   │   ├── admin-layout/
-│   │   └── user-layout/
-│   │   └── layout.module.ts                # Exports layout components
+│   │   ├── sidebar/
+│   │   ├── header/
+│   │   └── main/
 │
 │   ├── admin/                              # Admin module 
 │   │   └── dashboard/
@@ -48,11 +48,6 @@ src/
 │   ├── app.component.ts
 │   └── app.module.ts
 │
-├── assets/                                 # Static files
-│   ├── images/
-│   └── styles/                             # Global SCSS or CSS files
-│       └── variables.scss
-│
 ├── environments/                           # Dev & Prod environment configs
 │   ├── environment.ts
 │   └── environment.prod.ts
@@ -69,7 +64,7 @@ npm install
 
 ### 2. Development server
 ```sh
-npm serve
+ng serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.

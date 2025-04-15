@@ -10,25 +10,23 @@ import { CommonModule } from '@angular/common';
 })
 
 export class HeaderComponent {
-  @Output() toggleSidebarEvent = new EventEmitter<void>();
-  @Output() toggleUserMenuEvent = new EventEmitter<void>();
 
   isUserMenuOpen = false;
+  isSearchOpen = false;
+
+  @Output() toggle = new EventEmitter<void>();
 
   toggleSidebar() {
-    this.toggleSidebarEvent.emit();
+    this.toggle.emit();
   }
 
   toggleUserMenu() {
     this.isUserMenuOpen = !this.isUserMenuOpen;
   }
 
-  openUserMenu() {
-    this.isUserMenuOpen = true;
-  }
+toggleSearch() {
+  this.isSearchOpen = !this.isSearchOpen;
+}
 
-  closeUserMenu() {
-    this.isUserMenuOpen = false;
-  }
 }
 

@@ -1,6 +1,6 @@
-<app-sidebar/>
+<app-sidebar [isSidebarOpen]="isSidebarOpen" (closeSidebar)="closeSidebar()"/>
 <div class="md:pl-64 flex flex-col flex-1">
-    <app-header/>
+    <app-header (toggle)="toggleSidebar()"/>
 
     <main class="flex-1">
         <router-outlet />
