@@ -15,10 +15,7 @@ pubspec.lock
 !.devcontainer/README.md
 !.devcontainer/recommended-devcontainer.json
 !.devcontainer/recommended-Dockerfile
-.settings/
-.vscode/launch.json
-.vscode/settings.json
-.vscode/tasks.json
+
 *.swo
 *.swp
 modules/.settings
