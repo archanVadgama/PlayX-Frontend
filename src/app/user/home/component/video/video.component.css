@@ -1,0 +1,11 @@
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+    animation: fadeIn 0.2s ease-out forwards;
+}   /* Example if there's a blur applied to the whole container */
+.no-blur * {
+  filter: none !important;
+  backdrop-filter: none !important;
+}

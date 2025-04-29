@@ -11,6 +11,11 @@ src/
 │   │   ├── directives/                     # Custom directives
 │   │   ├── pipes/                          # Reusable pipes
 │   │   └── services/                       # Shared services (e.g., API, utils)
+│   │   └── types/                          # Centralized types directory
+│   │       ├── common.types.ts             # Shared types used across the app
+│   │       ├── api.types.ts                # API request/response interfaces
+│   │       ├── ui.types.ts                 # UI-related types (menus, etc.)
+│   │       └── index.ts                    # Barrel file that re-exports all types
 │
 │   ├── layout/                             # Layouts (header/sidebar/footer)
 │   │   ├── sidebar/
@@ -21,6 +26,8 @@ src/
 │   │   └── dashboard/
 │   │   │   ├── components/                 # Components specific to dashboard
 │   │   │   ├── services/                   # Services for dashboard
+│   │       ├── types/                      # Admin dashboard-specific types
+│   │       │   └── dashboard.types.ts
 │   │   │   ├── dashboard.component.ts
 │   │   │   └── dashboard.module.ts
 │   │   └── ...                             # More admin modules (e.g., users, videos, reports)
@@ -29,11 +36,15 @@ src/
 │   │   └──  dashboard/
 │   │   │   ├── components/                 # Components for user dashboard
 │   │   │   ├── services/                   # Services for user dashboard
+│   │       ├── types/                      # User dashboard-specific types
+│   │       │   └── dashboard.types.ts
 │   │   │   ├── dashboard.component.ts
 │   │   │   └── dashboard.module.ts
 │   │   └── ...                             # More user modules (e.g., profile, upload videos)
 │
 │   ├── auth/                               # Authentication module
+│   │   ├── types/                          # Auth-specific types
+│   │   │   └── auth.types.ts
 │   │   ├── login/
 │   │   ├── register/
 │   │   ├── forgot-password/
