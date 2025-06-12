@@ -1,40 +1,35 @@
 <div>
   <!-- Mobile Sidebar -->
   @if (isSidebarOpen) {
-    <div class="fixed inset-0 z-50 flex md:hidden bg-black/50" role="dialog" aria-modal="true">
-      <div class="relative flex flex-col w-full bg-white shadow-xl rounded-2xl overflow-y-auto">
-        <div class="flex items-center justify-between p-4">
-          <img class="h-8 w-auto" src="assets/images/logo.png" alt="PlayX" />
-          <button (click)="close()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <nav class="flex-1 px-4 space-y-2 mt-4">
-          @for (item of userMenuItems; track item.name) {
-            @if (item.route) {
-              <a
-                [routerLink]="[item.route]"
-                routerLinkActive="bg-gray-100"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="flex items-center p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-2xl transition">
-                <span [innerHTML]="item.icon" class="mr-3 text-lg"></span>
-                <span class="text-sm font-medium">{{ item.name }}</span>
-              </a>
-            } @else {
-              <button
-                (click)="item.callback?.()"
-                class="w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-2xl text-left transition">
-                <span [innerHTML]="item.icon" class="mr-3 text-lg"></span>
-                <span class="text-sm font-medium">{{ item.name }}</span>
-              </button>
-            }
-          }
-        </nav>
+  <div class="fixed inset-0 z-50 flex md:hidden bg-black/50" role="dialog" aria-modal="true">
+    <div class="relative flex flex-col w-full bg-white shadow-xl rounded-2xl overflow-y-auto">
+      <div class="flex items-center justify-between p-4">
+        <img class="h-8 w-auto" src="images/logo.png" alt="PlayX" />
+        <button (click)="close()" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
+      <nav class="flex-1 px-4 space-y-2 mt-4">
+        @for (item of userMenuItems; track item.name) {
+          @if (item.route) {
+          <a [routerLink]="[item.route]" routerLinkActive="bg-gray-100" [routerLinkActiveOptions]="{ exact: true }"
+            class="flex items-center p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-2xl transition">
+            <span [innerHTML]="item.icon" class="mr-3 text-lg"></span>
+            <span class="text-sm font-medium">{{ item.name }}</span>
+          </a>
+          } @else {
+          <button (click)="item.callback?.()"
+            class="w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-2xl text-left transition">
+            <span [innerHTML]="item.icon" class="mr-3 text-lg"></span>
+            <span class="text-sm font-medium">{{ item.name }}</span>
+          </button>
+          }
+        }
+      </nav>
     </div>
+  </div>
   }
 
   <!-- Desktop Sidebar -->
@@ -43,22 +38,18 @@
       <nav class="flex-1 px-4 space-y-2 mt-6">
         @for (item of userMenuItems; track item.name) {
           @if (item.route) {
-            <a
-            [routerLink]="[item.route]"
-            routerLinkActive="bg-gray-100 "
-            [routerLinkActiveOptions]="{ exact: true }"
+          <a [routerLink]="[item.route]" routerLinkActive="bg-gray-100 " [routerLinkActiveOptions]="{ exact: true }"
             class="flex items-center p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-2xl transition">
-            
+
             <span [innerHTML]="item.icon" class="mr-3 text-lg"></span>
             <span class="text-sm font-medium">{{ item.name }}</span>
           </a>
           } @else {
-            <button
-              (click)="item.callback?.()"
-              class="w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-2xl text-left transition">
-              <span [innerHTML]="item.icon" class="mr-3 text-lg"></span>
-              <span class="text-sm font-medium">{{ item.name }}</span>
-            </button>
+          <button (click)="item.callback?.()"
+            class="w-full flex items-center p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-2xl text-left transition">
+            <span [innerHTML]="item.icon" class="mr-3 text-lg"></span>
+            <span class="text-sm font-medium">{{ item.name }}</span>
+          </button>
           }
         }
       </nav>

@@ -27,6 +27,11 @@ export class SidebarComponent implements OnInit {
     private toast: ToastService
   ) {}
 
+  /**
+   * This method sets up the user menu items for the admin sidebar.
+   *
+   * @memberof SidebarComponent
+   */
   setupUserMenu() {
     this.adminMenuItems = [
       {
@@ -83,6 +88,11 @@ export class SidebarComponent implements OnInit {
     this.setupUserMenu();
   }
 
+  /**
+   * This method is used to log out the user from the application.
+   *
+   * @memberof SidebarComponent
+   */
   logout() {
     this.authService.logOut().subscribe({
       next: (response: APIResponse<null>) => {

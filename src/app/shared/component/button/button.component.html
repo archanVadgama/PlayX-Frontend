@@ -1,12 +1,14 @@
 <button [type]="type" [disabled]="disabled"
   class="w-full py-3 font-semibold text-white rounded-lg transition duration-200" [ngClass]="{
     'bg-indigo-400 cursor-not-allowed': disabled && color === 'primary',
+    'bg-gray-400 cursor-not-allowed': disabled && color === 'secondary',
     'bg-blue-400 cursor-not-allowed': disabled && color === 'info',
     'bg-red-400 cursor-not-allowed': disabled && color === 'error',
     'bg-green-400 cursor-not-allowed': disabled && color === 'success',
     'bg-yellow-400 cursor-not-allowed': disabled && color === 'warning',
 
     'bg-indigo-600 hover:bg-indigo-700': !disabled && color === 'primary',
+    'bg-gray-600 hover:bg-gray-700': !disabled && color === 'secondary',
     'bg-blue-600 hover:bg-blue-700': !disabled && color === 'info',
     'bg-red-600 hover:bg-red-700': !disabled && color === 'error',
     'bg-green-600 hover:bg-green-700': !disabled && color === 'success',

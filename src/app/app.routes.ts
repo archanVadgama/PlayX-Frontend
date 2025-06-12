@@ -2,7 +2,7 @@ import { Routes } from "@angular/router";
 import { SignUpComponent } from "./auth/component/sign-up/sign-up.component";
 import { LogInComponent } from "./auth/component/log-in/log-in.component";
 import { PageNotFoundComponent } from "./shared/component/error/page-not-found/page-not-found.component";
-import { HomeComponent as AdminHomeComponent } from "./admin/home/home.component";
+import { DashboardComponent as AdminHomeComponent } from "./admin/dashboard/component/dashboard/dashboard.component";
 import { MainComponent } from "./layout/user/main/main.component";
 import { MainComponent as AdminMainComponent } from "./layout/admin/main/main.component";
 import { VideoComponent } from "./user/home/component/video/video.component";
@@ -12,6 +12,7 @@ import { checkRoleGuard } from "./shared/guard/check-role/check-role.guard";
 import { UnauthorizedComponent } from "./shared/component/error/unauthorized/unauthorized/unauthorized.component";
 import { UploadComponent } from "./user/upload/component/upload/upload.component";
 import { checkLogInGuard } from "./shared/guard/checkLogIn/check-log-in.guard";
+import { MainVideoContentComponent } from "./user/video-content/component/main-video-content/main-video-content.component";
 
 export const routes: Routes = [
   {
@@ -19,6 +20,7 @@ export const routes: Routes = [
     component: MainComponent,
     children: [
       { path: "", component: VideoComponent },
+      { path: "watch/:uuid", component: MainVideoContentComponent },
       {
         path: "upload",
         component: UploadComponent,

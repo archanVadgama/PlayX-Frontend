@@ -4,13 +4,14 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  Validators,
+  Validators
 } from "@angular/forms";
 import { Router, RouterLink } from "@angular/router";
 import { AuthService } from "@app/auth/services/auth.service";
 import { RegisterRequest } from "@app/auth/types/auth.types";
 import { ButtonComponent } from "@app/shared/component/button/button.component";
 import { InputComponent } from "@app/shared/component/input/input.component";
+import { AppTitleService } from "@app/shared/service/app-title/app-title.service";
 import { ToastService } from "@app/shared/service/toast/toast.service";
 import { APIResponse } from "@app/shared/types";
 import { DividerModule } from "primeng/divider";
@@ -35,10 +36,16 @@ export class SignUpComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toast: ToastService
+    private toast: ToastService,
+    private appTitle:AppTitleService
   ) {}
+  
+  ngOnInit(): void {
+    this.appTitle.setTitle('Sign Up')
+  }
 
   isSubmitting = false;
+  
   signupForm = new FormGroup({
     displayName: new FormControl<string>("", {
       nonNullable: true,

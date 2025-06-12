@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { AuthService } from "@app/auth/services/auth.service";
 import { ResetPasswordRequest } from "@app/auth/types/auth.types";
 import { ButtonComponent } from "@app/shared/component/button/button.component";
+import { AppTitleService } from "@app/shared/service/app-title/app-title.service";
 import { ToastService } from "@app/shared/service/toast/toast.service";
 import { APIResponse } from "@app/shared/types";
 import { DividerModule } from "primeng/divider";
@@ -33,17 +34,24 @@ export class ResetPasswordComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private toast: ToastService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private appTitle: AppTitleService
   ) {}
   isSubmitting = false;
   resetToken: string = '';
 
   ngOnInit(): void {
+    this.appTitle.setTitle('Reset Password')
     this.resetToken = this.route.snapshot.paramMap.get('resetToken')!;
   }
 
+  /**
+   * This is the form group for the reset password form, it contains the password and confirmPassword fields.
+   *
+   * @memberof ResetPasswordComponent
+   */
   resetPassword = new FormGroup({
-    password: new FormControl<string>("Arc@123", {
+    password: new FormControl<string>("", {
       nonNullable: true,
       validators: [
         Validators.required,
@@ -54,7 +62,7 @@ export class ResetPasswordComponent implements OnInit {
         ),
       ],
     }),
-    confirmPassword: new FormControl<string>("Arc@123", {
+    confirmPassword: new FormControl<string>("", {
       nonNullable: true,
       validators: [
         Validators.required,
@@ -67,14 +75,32 @@ export class ResetPasswordComponent implements OnInit {
     }),
   });
 
+  /**
+   * This is a getter for the password control in the resetPassword form group.
+   *
+   * @readonly
+   * @memberof ResetPasswordComponent
+   */
   get passwordControl() {
     return this.resetPassword.get("password")!;
   }
 
+  /**
+   * This is a getter for the confirmPassword control in the resetPassword form group.
+   *
+   * @readonly
+   * @memberof ResetPasswordComponent
+   */
   get confirmPasswordControl() {
     return this.resetPassword.get("confirmPassword")!;
   }
 
+  /**
+   * This function will submit the form and hit reset password API, it will also check for the error and show it in the input.
+   *
+   * @return {*} 
+   * @memberof ResetPasswordComponent
+   */
   submitForm() {
     if (this.resetPassword.valid && !this.isSubmitting) {
       this.isSubmitting = true;
@@ -87,7 +113,6 @@ export class ResetPasswordComponent implements OnInit {
       }
 
       const formData = this.resetPassword.value as ResetPasswordRequest;
-console.log(this.resetToken);
       this.authService.resetPassword(this.resetToken, formData).subscribe({
         next: (response: APIResponse<null>) => {
           if (response.status) {

@@ -9,6 +9,12 @@ export class IsLoggedInService {
 
   constructor(private cookieService: CookieService) {}
 
+  /**
+   * This method checks if the user is logged in by verifying the presence and validity of the JWT token stored in cookies.
+   *
+   * @return {*}  {boolean}
+   * @memberof IsLoggedInService
+   */
   isLoggedIn(): boolean {
     const token = this.cookieService.get('accessToken');
     if (!token) return false;

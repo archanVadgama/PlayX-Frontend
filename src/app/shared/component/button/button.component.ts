@@ -9,6 +9,7 @@ import { Component, Input } from '@angular/core';
 })
 export class ButtonComponent {
   // Input properties to make button dynamic
+  @Input() routerLink: any;
   @Input() type: string = 'button'; // default type is 'button'
   @Input() text: string = 'Button';
   @Input() color: string = 'primary'; // Default color scheme (primary)

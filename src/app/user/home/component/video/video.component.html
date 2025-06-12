@@ -1,52 +1,58 @@
 @defer (when !isLoading; on idle) {
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-    @for (videoItem of videosToShow; track videoItem.id) {
-    <div class="relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer z-10 hover:z-50"
-        (mouseenter)="onMouseEnter(videoItem.id)" (mouseleave)="onMouseLeave(videoItem.id)" (click)="closeAllMenus()">
-
+    @for (videoItem of videosToShow; track videoItem.uuid) {
+        <div class="relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer z-10 hover:z-50 mb-1"
+        (mouseenter)="onMouseEnter(videoItem.uuid)" (mouseleave)="onMouseLeave(videoItem.uuid)"
+        (click)="closeAllMenus()" (click)="onCardClick(videoItem.uuid)">
+    
         <!-- Thumbnail or Video -->
-        <div class="relative w-full">
-            @if (hoveredIndex() === videoItem.id) {
-            <video id="video-{{videoItem.id}}" class="w-full h-48 object-cover transition-all duration-500 rounded-t-xl"
-                muted preload="metadata">
-                <source [src]="videoItem.src" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+        <div class="relative w-full max-w-[1280px] mx-auto">
+            @if (hoveredIndex() === videoItem.uuid) {
+            <div class="aspect-video">
+                <video id="video-{{videoItem.uuid}}"
+                    class="w-full h-full object-cover transition-all duration-500 rounded-t-xl" muted preload="metadata">
+                    <source [src]="videoItem.videoPath ?? 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
             } @else {
-            <img [src]="videoItem.thumbnail" alt="Video Thumbnail" class="w-full h-48 object-cover rounded-t-xl">
-            <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-xs text-white px-2 py-0.5 rounded">
-                {{ videoItem.duration }}
-            </span>
+            <div class="aspect-video relative">
+                <img [src]="videoItem.thumbnailPath ?? 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'" alt="Video Thumbnail"
+                    class="w-full h-full object-cover rounded-t-xl">
+                <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-xs text-white px-2 py-0.5 rounded">
+                    {{ videoItem.duration | duration }}
+                </span>
+            </div>
             }
         </div>
-
+    
         <!-- Content -->
         <div class="p-3">
             <div class="flex items-start justify-between">
                 <div class="flex items-start gap-3">
-                    <img [src]="videoItem.profileImg" alt="Profile" class="w-10 h-10 object-cover rounded-full">
+                    <img [src]="videoItem.user.image ?? 'images/default_user.jpg'" alt="Profile" class="w-10 h-10 object-cover rounded-full">
                     <div>
                         <h3 class="text-sm font-semibold line-clamp-2">
                             {{ videoItem.title }}
                         </h3>
                         <p class="text-xs text-gray-600 mt-0.5">{{ videoItem.channelName }}</p>
-                        <p class="text-xs text-gray-500">{{ videoItem.views }} views • {{ videoItem.publishedAt }}</p>
+                        <p class="text-xs text-gray-500">{{ videoItem.viewCount | viewCount }} views • {{ videoItem.createdAt | timeAgo }}</p>
                     </div>
                 </div>
-
+    
                 <!-- Three Dots Menu -->
                 <div class="relative shrink-0 ml-2">
                     <button type="button" class="p-1 rounded-full hover:bg-gray-300 transition-colors duration-200"
-                        (click)="toggleMenu(videoItem.id, $event)">
+                        (click)="toggleMenu(videoItem.uuid, $event)">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none"
                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
                         </svg>
                     </button>
-
+    
                     <!-- Dropdown Menu -->
-                    @if (menuOpenId() === videoItem.id) {
+                    @if (menuOpenId() === videoItem.uuid) {
                     <div class="absolute right-0 top-4 mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
                         (toggle)="$event.stopPropagation()">
                         <button type="button"
@@ -70,13 +76,13 @@
                     </div>
                     }
                 </div>
-
+    
             </div>
         </div>
     </div>
+    
     }
 </div>
-
 }
 <!-- @placeholder(minimum 2s) { -->
 @placeholder {

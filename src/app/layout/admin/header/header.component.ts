@@ -24,9 +24,9 @@ export class HeaderComponent {
     this.isUserMenuOpen = !this.isUserMenuOpen;
   }
 
-toggleSearch() {
-  this.isSearchOpen = !this.isSearchOpen;
-}
+  toggleSearch() {
+    this.isSearchOpen = !this.isSearchOpen;
+  }
 
 }
 

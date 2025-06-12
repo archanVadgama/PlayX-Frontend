@@ -28,6 +28,11 @@ export class SidebarComponent implements OnInit{
   
   userMenuItems!: IMenuItem[];
 
+  /**
+   * This method sets up the user menu items for the sidebar.
+   *
+   * @memberof SidebarComponent
+   */
   setupUserMenu(){
     this.userMenuItems = [
       {

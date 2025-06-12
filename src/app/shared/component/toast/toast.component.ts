@@ -44,6 +44,11 @@ export class ToastComponent implements OnInit {
     });
   }
 
+  /**
+   * Starts the timer for the toast notification.
+   *
+   * @memberof ToastComponent
+   */
   startTimer() {
     this.lastTick = Date.now();
     clearInterval(this.timer);

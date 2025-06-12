@@ -18,6 +18,7 @@ import { DividerModule } from 'primeng/divider';
 import { LogInRequest } from "@app/auth/types/auth.types";
 import { CookieService } from "ngx-cookie-service";
 import { JwtHelperService } from "@auth0/angular-jwt";
+import { AppTitleService } from "@app/shared/service/app-title/app-title.service";
 
 @Component({
   selector: "app-log-in",
@@ -41,13 +42,23 @@ export class LogInComponent {
     private router: Router,
     private toast: ToastService,
     private cookieService: CookieService,
-    private jwtHelper: JwtHelperService
+    private jwtHelper: JwtHelperService,
+    private appTitle:AppTitleService
   ) {}
+
+  ngOnInit(): void {
+    this.appTitle.setTitle('Sign In')
+  }
 
   isSubmitting = false;
 
+  /**
+   * This is the form group for the login form, it contains the username, password and remember me fields.
+   *
+   * @memberof LogInComponent
+   */
   loginForm = new FormGroup({
-    username: new FormControl<string>("archanTest", {
+    username: new FormControl<string>("", {
       nonNullable: true,
       validators: [
         Validators.required,
@@ -56,7 +67,7 @@ export class LogInComponent {
         Validators.pattern(/^[a-zA-Z0-9_]+$/),
       ],
     }),
-    password: new FormControl<string>("Arc@123", {
+    password: new FormControl<string>("", {
       nonNullable: true,
       validators: [
         Validators.required,

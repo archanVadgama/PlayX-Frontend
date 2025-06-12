@@ -5,6 +5,9 @@
       @if (required) {
         <span class="text-red-500">*</span>
       }
+      @if(description){
+        <span class="text-gray-500 text-xs ms-2">{{description}}</span>
+      }
     </label>
   
     <input

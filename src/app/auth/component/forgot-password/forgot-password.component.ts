@@ -1,15 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { Router, RouterLink } from '@angular/router';
+import {  RouterLink } from '@angular/router';
 import { AuthService } from '@app/auth/services/auth.service';
 import { ForgotPasswordRequest, RegisterRequest } from '@app/auth/types/auth.types';
 import { ButtonComponent } from '@app/shared/component/button/button.component';
 import { InputComponent } from '@app/shared/component/input/input.component';
+import { AppTitleService } from '@app/shared/service/app-title/app-title.service';
 import { ToastService } from '@app/shared/service/toast/toast.service';
 import { APIResponse } from '@app/shared/types';
 
@@ -19,13 +20,18 @@ import { APIResponse } from '@app/shared/types';
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.css'
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements OnInit {
   
   constructor(
     private authService: AuthService,
-    private router: Router,
+    private appTitle: AppTitleService,
     private toast: ToastService
   ) {}
+
+  ngOnInit(): void {
+      this.appTitle.setTitle('Forgot Password')
+  }
+
   isSubmitting = false;
   forgotPassword = new FormGroup({
     email: new FormControl<string>("", {
