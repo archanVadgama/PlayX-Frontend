@@ -30,9 +30,7 @@ export class UploadService {
     if (!accessToken) {
       return 0;
     }
-    console.log('accessToken', accessToken);
     const decodedToken = this.jwtHelper.decodeToken(accessToken);
-    console.log('decodedToken', decodedToken);
     return parseInt(atob(decodedToken.id));
   }
 
