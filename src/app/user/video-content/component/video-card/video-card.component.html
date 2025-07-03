@@ -3,7 +3,7 @@
     <!-- Video -->
      <!-- //! fix this to 16/9 -->
     <div class="relative w-full">
-        <video [id]="'video-' + uuid"
+        <video [id]="'video-' + uuid" #videoEl
             class="w-full aspect-[16/7] object-cover transition-all duration-500 rounded-t-xl" [src]="videoUrl"
             autoplay muted controls loop playsinline>
             Your browser does not support the video tag.

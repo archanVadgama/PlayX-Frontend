@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { VideoService } from '@app/shared/service/video/video.service';
 
 @Component({
@@ -23,4 +23,11 @@ export class VideoCardComponent {
     event.stopPropagation();
     this.menuOpen = !this.menuOpen;
   }
+
+  @ViewChild('videoEl') videoEl!: ElementRef<HTMLVideoElement>;
+
+  public getVideoElement(): HTMLVideoElement {
+    return this.videoEl.nativeElement;
+  }
+
 }
