@@ -1,0 +1,162 @@
+<div
+  class="min-h-screen bg-gray-100"
+  style="background-image: url('https://preview.keenthemes.com/metronic8/demo1/assets/media/auth/bg7.jpg');"
+>
+  <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Left Side (Logo) -->
+    <div class="w-full md:w-1/2 flex items-center justify-center p-10">
+      <div class="text-center text-white">
+        <img src="images/logo.png" alt="Logo" class="mx-auto mb-4" width="250" />
+        <h1 class="text-3xl font-bold">Join PlayX</h1>
+        <p class="mt-2 text-gray-200 text-lg md:text-xl">Stream. Share. Inspire.</p>
+      </div>
+    </div>
+
+    <!-- Right Side (Form) -->
+    <div class="w-full md:w-1/2 flex items-center justify-center p-6">
+      <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+        <!-- Greeting -->
+        <div class="mb-6">
+          <div class="flex items-center gap-3">
+            <img
+              src="images/favicon.ico"
+              alt="Logo"
+              class="w-10 h-10 rounded-full object-cover"
+            />
+            <h2 class="text-2xl font-bold text-gray-800">Create Account</h2>
+          </div>
+          <p class="text-gray-500 text-sm mt-1">
+            Fill in your details to get started.
+          </p>
+        </div>
+
+        <!-- Sign Up Form -->
+        <form class="space-y-5" [formGroup]="signupForm">
+          <app-input
+            [required]="true"
+            label="Full Name"
+            type="text"
+            placeholder="Enter your full name"
+            [control]="signupForm.controls['displayName']"
+            [errorMessages]="{
+              required: 'Full Name is required.',
+              minlength: 'Full Name must be at least 2 characters long.',
+              maxlength: 'Full Name must be maximum 20 characters long.'
+            }"
+          />
+
+          <app-input
+            [required]="true"
+            label="Username"
+            type="text"
+            placeholder="Enter your username"
+            [control]="signupForm.controls['username']"
+            [errorMessages]="{
+              required: 'Username is required.',
+              minlength: 'Username must be at least 5 characters long.',
+              maxlength: 'Username must be maximum 20 characters long.',
+              pattern: 'Username can only contain letters, numbers, and underscores (no spaces or special characters).'
+            }"
+          />
+
+          <app-input
+            [required]="true"
+            label="Email"
+            type="text"
+            placeholder="Enter your email"
+            [control]="signupForm.controls['email']"
+            [errorMessages]="{
+              required: 'Email is required.',
+              maxlength: 'Email must be maximum 50 characters long.',
+              pattern: 'Email is invalid.'
+            }"
+          />
+
+          <app-input
+            [required]="true"
+            label="Mobile Number"
+            type="number"
+            placeholder="Enter your mobile number"
+            [control]="signupForm.controls['mobileNumber']"
+            [errorMessages]="{
+              required: 'Mobile Number is required.',
+              minlength: 'Mobile Number must be 10 digits.',
+              maxlength: 'Mobile Number must be 10 digits',
+              pattern: 'Mobile Number is not valid.'
+            }"
+          />
+
+          <div class="my-5">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Password <span class="text-red-500">*</span>
+            </label>
+
+            <p-password
+              formControlName="password"
+              [toggleMask]="true"
+              placeholder="Enter your password"
+              styleClass="w-full rounded-lg shadow-sm transition-all duration-200"
+              [inputStyle]="{ width: '100%' }"
+              [ngClass]="{
+                'border-red-500':
+                  passwordControl.touched && passwordControl.invalid
+              }"
+              autocomplete="off"
+            >
+              <ng-template #header>
+                <div class="font-semibold text-sm mb-4">Pick a password</div>
+              </ng-template>
+
+              <ng-template #footer>
+                <p-divider />
+                <ul class="pl-2 ml-2 text-sm my-0 leading-normal">
+                  <li>At least one lowercase</li>
+                  <li>At least one uppercase</li>
+                  <li>At least one numeric</li>
+                  <li>Minimum 4 characters</li>
+                  <li>Maximum 12 characters</li>
+                </ul>
+              </ng-template>
+            </p-password>
+
+            <!-- Show one error only -->
+            @if (passwordControl.touched && passwordControl.errors) {
+            <div class="mt-2 text-red-600 text-sm">
+              @if (passwordControl.errors['required']) { Password is required. }
+              @else if (passwordControl.errors['minlength']) { Minimum 4
+              characters required. } @else if
+              (passwordControl.errors['maxlength']) { Maximum 12 characters
+              allowed. } @else if (passwordControl.errors['pattern']) { Must
+              include lowercase, uppercase, number, and special character. }
+              @else if (passwordControl.errors['serverError']) {
+              {{ passwordControl.errors["serverError"] }}
+              }
+            </div>
+            }
+          </div>
+
+          <!-- Button -->
+          <app-button
+            type="submit"
+            text="Sign Up"
+            [loading]="isSubmitting"
+            [disabled]="!signupForm.valid || isSubmitting"
+            (click)="submitForm()"
+          >
+          </app-button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="mt-5 text-center text-sm text-gray-600">
+          Already have an account?
+          <a
+            [routerLink]="['/log-in']"
+            routerLinkActive="router-link-active"
+            class="text-indigo-600 hover:underline"
+            >Sign In</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,155 @@
+<div class="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 py-5">
+    <h1 class="text-2xl font-semibold text-gray-900">Upload Video</h1>
+</div>
+  
+<div class="space-y-6 px-4">
+    <form action="#" method="POST" [formGroup]="uploadVideoForm">
+
+        <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
+            <div class="md:grid md:grid-cols-3 md:gap-6">
+                <div class="md:col-span-1">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Upload Content</h3>
+                    <p class="mt-1 text-sm text-gray-500">Please upload a video and thumbnail. Ensure your content
+                        follows our community guidelines.</p>
+                </div>
+                <div class="mt-5 md:mt-0 md:col-span-2">
+                    <app-file-upload [type]="'image'" [label]="'Thumbnail ( 1280 x 720 )'"
+                        [formControl]="uploadVideoForm.controls['thumbnail']"
+                        [allowedTypes]="['image/jpeg', 'image/jpg', 'image/png']" [maxSizeMB]="10">
+                    </app-file-upload>
+
+                    <app-file-upload [type]="'video'" [label]="'Video File'"
+                        [formControl]="uploadVideoForm.controls['video']" [allowedTypes]="['video/mp4']"
+                        [maxSizeMB]="500">
+                    </app-file-upload>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="bg-white shadow px-4 py-3 sm:rounded-lg sm:p-6 mt-6">
+            <div class="md:grid md:grid-cols-3 md:gap-6">
+                <div class="md:col-span-1">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Video Details</h3>
+                    <p class="mt-1 text-sm text-gray-500">Provide details about your video including title, description,
+                        category, and visibility settings.</p>
+                </div>
+                <div class="mt-5 md:mt-0 md:col-span-2">
+                    <div class="grid grid-cols-6">
+                        <div class="col-span-12">
+                            <app-input [required]="true" label="Title" type="text" placeholder="Enter video title"
+                                [control]="uploadVideoForm.controls['title']" [errorMessages]="{
+                                    required: 'Title is required.',
+                                    minlength: 'Title must be at least 5 characters long.',
+                                    maxlength: 'Title must be maximum 80 characters long.'
+                            }" />
+                        </div>
+                        <div class="col-span-12">
+                            <app-textarea [required]="true" label="Description" type="text"
+                                placeholder="Enter video description"
+                                [control]="uploadVideoForm.controls['description']" [errorMessages]="{
+                                    required: 'Description is required.',
+                                    minlength: 'Description must be at least 10 characters long.',
+                                    maxlength: 'Description must be maximum 500 characters long.'
+                            }" />
+                        </div>
+                        <div class="col-span-12">
+                            <app-input [required]="true" description="Use comma(,) to separate keywords." (keydown)="onKeywordsInput($event)" label="Keywords"
+                                type="text" placeholder="Enter video keywords"
+                                [control]="uploadVideoForm.controls['keywords']" [errorMessages]="{
+                                    required: 'Keywords is required.',
+                                    minlength: 'Keywords must be at least 10 characters long.',
+                                    maxlength: 'Keywords must be maximum 100 characters long.'
+                            }" />
+                        </div>
+                        <div class="col-span-6 sm:col-span-6 lg:col-span-2 my-5">
+                            <label for="categoryId" class="block text-sm font-medium text-gray-700">
+                                Categories<span class="text-red-500"> *</span>
+                                @if (uploadVideoForm.get('categoryId')?.invalid &&
+                                uploadVideoForm.get('categoryId')?.touched) {
+                                <span class="ml-2 inline-block w-2 h-2 bg-red-500 rounded-full align-middle"></span>
+                                }
+                            </label>
+                            <select id="categoryId" name="categoryId" formControlName="categoryId"
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <option [ngValue]="null" disabled selected hidden>Select Category</option>
+                                <option [ngValue]="1">Entertainment</option>
+                                <option [ngValue]="2">Comedy</option>
+                                <option [ngValue]="3">News</option>
+                                <option [ngValue]="4">Learning</option>
+                                <option [ngValue]="5">Cartoon</option>
+                            </select>
+                            @if (uploadVideoForm.get('categoryId')?.invalid &&
+                            uploadVideoForm.get('categoryId')?.touched) {
+                            <ul class="mt-1 text-sm text-red-600 list-disc pl-4">
+                                @if (uploadVideoForm.get('categoryId')?.errors) {
+                                @if (uploadVideoForm.get('categoryId')?.hasError('required')) {
+                                <li>Category is required.</li>
+                                }
+                                }
+                            </ul>
+                            }
+                        </div>
+
+                        <!-- Age Restricted Radio Buttons -->
+                        <div class="col-span-6 sm:col-span-3 lg:col-span-2 ml-6 my-5">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Age Restricted<span class="text-red-500"> *</span>
+                            </label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" [value]="true" formControlName="isAgeRestricted"
+                                        class="form-radio">
+                                    <span class="ml-2">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" [value]="false" formControlName="isAgeRestricted"
+                                        class="form-radio">
+                                    <span class="ml-2">No</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Private Radio Buttons -->
+                        <div class="col-span-6 sm:col-span-3 lg:col-span-2 my-5">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Private<span class="text-red-500"> *</span>
+                            </label>
+                            <div class="flex space-x-4">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" [value]="true" formControlName="isPrivate" class="form-radio">
+                                    <span class="ml-2">Yes</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" [value]="false" formControlName="isPrivate" class="form-radio">
+                                    <span class="ml-2">No</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="flex justify-end px-4 py-5 ">
+            <div class="col-span-3 me-4 mt-2">
+                <app-button type="submit" class="px-4" color="secondary" text="Cancel" (click)="goToHomePage()" />
+            </div>
+            <div class="col-span-3 mt-2">
+                <app-button type="submit" class="px-4" text="Upload & Save" [loading]="isSubmitting"
+                    [disabled]="!uploadVideoForm.valid || isSubmitting" (click)="submitForm()" />
+            </div>
+        </div>
+    </form>
+
+</div>
+@if(isSubmitting){
+<!-- Loading Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-white/5 backdrop-blur-sm backdrop-brightness-100">
+    <!-- Spinner -->
+    <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+}

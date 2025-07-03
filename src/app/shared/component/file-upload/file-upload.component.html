@@ -1,0 +1,91 @@
+<div class="mt-4">
+    <label class="block text-sm font-medium text-gray-700 mb-2">
+        {{ label }}
+        <span class="text-red-500">*</span>
+    </label>
+
+    <div class="relative border-2 border-dashed rounded-md p-6 text-center cursor-pointer transition-colors duration-200"
+        [class.border-red-500]="errorMessage || (formControl.invalid && formControl.touched)"
+        [class.border-gray-300]="!errorMessage && (!formControl.invalid || !formControl.touched)"
+        [class.hover:border-indigo-500]="!errorMessage && (!formControl.invalid || !formControl.touched)"
+        (click)="fileInput.click()">
+
+        <!-- Show upload instructions only when no file is selected -->
+        @if (!fileName) {
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+            <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+
+        <p class="mt-2 text-sm text-gray-600">
+            <span class="font-medium text-indigo-600">Click to upload</span> or drag and drop
+        </p>
+        <p class="text-xs text-gray-500">
+            Accepted types: {{ allowedFileExtensions }}
+            <br>
+            Maximum size: {{ maxSizeMB }}MB
+        </p>
+        }
+
+        <!-- Image/Video Preview -->
+        @if (previewUrl) {
+        @if (type === 'image') {
+        <div class="relative inline-block">
+            <img [src]="previewUrl" class="mx-auto mt-4 max-h-40 rounded shadow-md" alt="preview">
+            <button type="button" (click)="removeFile($event)"
+                class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                title="Remove image">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        } @else if (type === 'video') {
+        <div class="relative inline-block">
+            <video [src]="previewUrl"  class="mx-auto mt-4 max-h-40 rounded shadow-md" controls>
+                Your browser does not support the video tag.
+            </video>
+            <button type="button" (click)="removeFile($event)"
+                class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                title="Remove video">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        }
+
+        <!-- File name -->
+        <div class="flex items-center justify-center gap-2 mt-2">
+            <p class="text-green-600 text-sm">{{ fileName }}</p>
+        </div>
+        }
+
+        <!-- Hidden input -->
+        <input #fileInput type="file" class="sr-only" [accept]="allowedTypes.join(',')" (change)="onFileChange($event)">
+    </div>
+
+    <!-- Error Messages -->
+    <div class="mt-2">
+        @if (formControl.touched || errorMessage) {
+        @if (formControl.errors?.['required']) {
+        <p class="text-sm text-red-600">Please select a {{ type }} file</p>
+        }
+        @if (formControl.errors?.['fileType']) {
+        <p class="text-sm text-red-600">
+            Invalid file type. Only {{ allowedFileExtensions }} files are allowed
+        </p>
+        }
+        @if (formControl.errors?.['maxSize']) {
+        <p class="text-sm text-red-600">
+            File is too large. Maximum size allowed is {{ maxSizeMB }}MB
+        </p>
+        }
+        @if (errorMessage && !formControl.errors?.['required'] && !formControl.errors?.['fileType'] &&
+        !formControl.errors?.['maxSize']) {
+        <p class="text-sm text-red-600">{{ errorMessage }}</p>
+        }
+        }
+    </div>
+</div>

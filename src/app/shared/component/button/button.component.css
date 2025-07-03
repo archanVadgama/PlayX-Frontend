@@ -1,0 +1,25 @@
+/* Spinner animation */
+.spinner {
+    border: 3px solid transparent;
+    border-top: 3px solid #ffffff;  /* White color for the spinner */
+    border-right: 3px solid #ffffff;  /* Add more contrast for the spinner */
+    border-left: 3px solid #ffffff;  /* Add more contrast for the spinner */
+    border-radius: 50%;
+    width: 26px;  /* Increased size for better visibility */
+    height: 26px;  /* Increased size for better visibility */
+    animation: spin 1.5s linear infinite;
+    margin: auto;  /* Center the spinner */
+    display: block;
+  }
+  
+  /* Animation for the spinner */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Add shadow to the spinner */
+  .spinner {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  

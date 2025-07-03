@@ -1,0 +1,36 @@
+<div class="my-5">
+    <label class="block text-sm font-medium text-gray-700 mb-1">
+      {{label}}
+      <!-- Conditionally display the red asterisk if the field is required -->
+      @if (required) {
+        <span class="text-red-500">*</span>
+      }
+    </label>
+  
+    <textarea
+      [placeholder]="placeholder"
+      [formControl]="control"
+      [ngClass]="{
+        'border-red-500 focus:ring-red-500 focus:border-red-500': control.touched && control.invalid,
+        'border-gray-300': !(control.touched && control.invalid)
+      }"
+      class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none transition-all duration-200"
+      rows="4"
+    ></textarea>
+  
+    <!-- Display validation errors -->
+    @if (control.touched && control.errors) {
+      <div class="mt-2 text-red-600 text-sm">
+        @for (errorKey of objectKeys(control.errors); track errorKey; let i = $index) {
+            @if (i === 0) {
+                @if (errorKey !== 'serverError') {
+                    {{ errorMessages[errorKey] }}
+                }
+                @else {
+                    {{ control.errors['serverError'] }}
+                }
+          }
+        }
+      </div>
+    }
+  </div>

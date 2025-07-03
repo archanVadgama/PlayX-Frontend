@@ -1,4 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
-
+@plugin "tailwindcss-primeui";
+body {
+  background-color: #f1f5f9;
+    font-family: 'Poppins', sans-serif;
+  }
+  /* Remove green border on focus from PrimeNG input */
+.p-inputtext:enabled:focus {
+  box-shadow: none !important;
+  border-color: #d1d5db !important; /* gray-300 */
+}
 

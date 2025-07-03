@@ -1,0 +1,41 @@
+@if (show) {
+  <div 
+    class="toast fixed top-5 left-1/2 transform -translate-x-1/2 w-96 bg-white shadow-lg rounded-lg overflow-hidden z-50 cursor-default"
+    (mouseenter)="pauseTimer()" 
+    (mouseleave)="resumeTimer()"
+    [class.animate-fade-in-up]="showAnimation"
+    [class.animate-fade-out-up]="hideAnimation"
+  >
+    <div class="p-4">
+      <div class="flex items-start">
+        <!-- Icon -->
+        <div class="icon flex-shrink-0" [innerHTML]="icon"></div>
+  
+        <!-- Message -->
+        <div class="ml-3 w-0 flex-1 pt-0.5">
+          <p class="text-sm font-medium text-gray-900">{{ title }}</p>
+        </div>
+  
+        <!-- Close button -->
+        <div class="ml-4 flex-shrink-0 flex">
+          <button 
+            type="button"
+            class="bg-white rounded-md text-gray-400 hover:text-gray-600 focus:outline-none"
+            (click)="closeToast()"
+          >
+            <span class="sr-only">Close</span>
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                 viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Progress bar -->
+    <div class="h-1 transition-all duration-100 linear" [class]="colorClass" [ngStyle]="{ width: progress + '%' }"></div>
+  </div>
+}

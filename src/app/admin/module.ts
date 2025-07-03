@@ -1,1 +1,0 @@
-//  This is the module folder contains module used in the admin panel

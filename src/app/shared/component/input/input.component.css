@@ -1,0 +1,17 @@
+/* styles.css or styles.scss */
+
+.border-error {
+  border-color: #ef4444 !important; /* Tailwind red-500 */
+}
+
+.focus-ring-error {
+  box-shadow: 0 0 0 1px #ef4444 !important; /* simulate focus ring */
+}
+
+.border-default {
+  border-color: #d1d5db !important; /* Tailwind gray-300 */
+}
+
+.focus-ring-default {
+  box-shadow: 0 0 0 1px #e5e7eb !important; /* simulate focus ring */
+}

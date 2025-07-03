@@ -1,0 +1,10 @@
+<app-video-card
+  [videoUrl]="videoData.videoPath"
+  [title]="videoData.title"
+  [duration]="videoData.duration | duration"
+  [channelName]="videoData.user.channelName ?? 'PlayX'"
+  [views]="videoData.viewCount ?? 0 | viewCount"
+  [createdAt]="videoData.createdAt  | timeAgo"
+  [profileImage]="videoData.user.image"
+  [uuid]="videoData.uuid">
+</app-video-card>
