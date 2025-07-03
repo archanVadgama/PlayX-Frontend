@@ -13,6 +13,7 @@ import { UnauthorizedComponent } from "./shared/component/error/unauthorized/una
 import { UploadComponent } from "./user/upload/component/upload/upload.component";
 import { checkLogInGuard } from "./shared/guard/checkLogIn/check-log-in.guard";
 import { MainVideoContentComponent } from "./user/video-content/component/main-video-content/main-video-content.component";
+import { SearchResultsComponent } from "./user/search-result/component/search-result/search-result.component";
 
 export const routes: Routes = [
   {
@@ -21,6 +22,7 @@ export const routes: Routes = [
     children: [
       { path: "", component: VideoComponent },
       { path: "watch/:uuid", component: MainVideoContentComponent },
+      { path: "results", component: SearchResultsComponent },
       {
         path: "upload",
         component: UploadComponent,

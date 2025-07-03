@@ -1,5 +1,3 @@
-import { SafeResourceUrl } from "@angular/platform-browser";
-
 export interface User {
   id: string;
   username: string;
@@ -25,6 +23,7 @@ export interface Video {
   title: string;
   duration: number;
   channelName: string;
+  description?:string
   viewCount: string;
   createdAt: string;
   thumbnailPath: string;
