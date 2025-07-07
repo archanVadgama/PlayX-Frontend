@@ -38,4 +38,9 @@ export class VideoService {
     });
   }
   
+  incrementViewCount(uuid: string) {
+    return this.http.post(`${this.apiUrl}/view-count/${uuid}`, {}, {
+      withCredentials: true
+    });
+  }
 }

@@ -29,5 +29,6 @@ export class VideoCardComponent {
   public getVideoElement(): HTMLVideoElement {
     return this.videoEl.nativeElement;
   }
+  
 
 }
