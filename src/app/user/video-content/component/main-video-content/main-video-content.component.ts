@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, Inject, OnInit, PLATFORM_ID, ViewChild } from "@angular/core";
-import { ActivatedRoute, } from "@angular/router";
+import { AfterViewChecked, AfterViewInit, Component, Inject, OnInit, PLATFORM_ID, ViewChild } from "@angular/core";
+import { ActivatedRoute, Router, } from "@angular/router";
 import { VideoService } from "@app/shared/service/video/video.service";
 import { VideoCardComponent } from "../video-card/video-card.component";
 import { ViewCountPipe } from "@app/shared/pipes/view-count/view-count.pipe";
@@ -9,23 +9,31 @@ import { APIResponse } from "@app/shared/types";
 import { AppTitleService } from "@app/shared/service/app-title/app-title.service";
 import { viewedVideosI } from "../../types/video.types";
 import { isPlatformBrowser } from "@angular/common";
+import { AgeRestrictedComponent } from "../age-restricted/age-restricted.component";
+import { CookieService } from "ngx-cookie-service";
+import { JwtHelperService } from "@auth0/angular-jwt";
 
 @Component({
   selector: "app-main-video-content",
-  imports: [VideoCardComponent, ViewCountPipe, DurationPipe, TimeAgoPipe],
+  imports: [VideoCardComponent, ViewCountPipe, AgeRestrictedComponent, DurationPipe, TimeAgoPipe],
   templateUrl: "./main-video-content.component.html",
   styleUrl: "./main-video-content.component.css",
 })
-export class MainVideoContentComponent implements OnInit, AfterViewInit {
+export class MainVideoContentComponent implements OnInit, AfterViewChecked {
   videoData: any;
   resumeFromTime: number = 0;
+  isAgeConfirmed = false;
+  userId: number = 0;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private videoService: VideoService,
     private route: ActivatedRoute,
-    private appTitle:AppTitleService
-  ) {}
+    private router: Router,
+    private appTitle: AppTitleService,
+    private cookieService: CookieService,
+    private jwtHelper: JwtHelperService
+  ) { }
 
   /**
    * This method is called when the component is initialized.
@@ -34,35 +42,46 @@ export class MainVideoContentComponent implements OnInit, AfterViewInit {
    */
   ngOnInit(): void {
     const uuid = this.route.snapshot.paramMap.get("uuid");
-    const STORAGE_KEY = 'viewedVideos';
-  
-    // Get the last watched timestamp from localStorage
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const viewedVideos: viewedVideosI[] = JSON.parse(stored);
-        const entry = viewedVideos.find(v => v.id === uuid);
-        if (entry?.lastTimestamp && !isNaN(entry.lastTimestamp)) {
-          this.resumeFromTime = entry.lastTimestamp;
-        }
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-  
-    // Fetch video data by UUID
     this.videoService.getVideoByUUId(uuid!).subscribe({
       next: (response: any) => {
-        const apiResponse = response as APIResponse<any>;
-        this.videoData = apiResponse.data;
+        this.videoData = response.data;
         this.appTitle.setTitle(this.videoData.title);
+    
+        const videoId = this.videoData.id; 
+        const STORAGE_KEY = 'viewedVideos';
+    
+        if (isPlatformBrowser(this.platformId)) {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            try {
+              const viewedVideos: any[] = JSON.parse(stored);
+              const entry = viewedVideos.find(v => v.id === videoId); // 👈 Match by numeric ID
+              if (entry?.lastTimestamp && !isNaN(entry.lastTimestamp)) {
+                this.resumeFromTime = entry.lastTimestamp;
+              }
+            } catch {
+              localStorage.removeItem(STORAGE_KEY);
+            }
+          }
+        }
+    
+        if (!this.videoData.isAgeRestricted) {
+          this.isAgeConfirmed = true;
+        }
       },
       error: (err) => {
         console.error("Error fetching video:", err);
       },
     });
   }
-  
+
+  handleAgeConfirmed() {
+    this.isAgeConfirmed = true;
+  }
+
+  handleAgeCancelled() {
+    this.router.navigate(['/']); // or show a toast/notification
+  }
 
   /**
    * Calculates the view threshold based on video duration.
@@ -90,7 +109,7 @@ export class MainVideoContentComponent implements OnInit, AfterViewInit {
       next: (response: any) => {
         const apiResponse = response as APIResponse<any>;
         if (apiResponse.status) {
-          
+
           // Update view count in UI
           if (this.videoData.viewCount != null) {
             this.videoData.viewCount += 1;
@@ -106,24 +125,71 @@ export class MainVideoContentComponent implements OnInit, AfterViewInit {
       },
     });
   }
-  
-  
+
+  private updateWatchHistory(videoId: number,
+    lastTimeStamp: number): void {
+    const accessToken = this.cookieService.get('accessToken');
+
+    if (!accessToken) {
+      console.log('No access token found', accessToken);
+      this.router.navigate(['/log-in']);
+    }
+
+    try {
+      // Verify the token and decode it
+      if (this.jwtHelper.isTokenExpired(accessToken)) {
+        this.router.navigate(['/log-in']);
+      }
+
+      // Get the payload from the token
+      const decodedToken = this.jwtHelper.decodeToken(accessToken);
+      this.userId = Number(atob(decodedToken.id))
+
+    } catch (error) {
+      // Error decoding the token
+      console.error('Error verifying token:', error);
+      this.router.navigate(['/']);
+    }
+    const data = {
+      videoId,
+      userId: this.userId,
+      lastTimeStamp
+    }
+    this.videoService.setWatchHistory(data).subscribe({
+      next: (res) => {
+        console.log("Watch history updated ✅", res);
+      },
+      error: (err) => {
+        console.error("Failed to update watch history ❌", err);
+      }
+    });
+  }
+
+
   @ViewChild('videoCardRef') videoCardComponent!: VideoCardComponent;
 
   viewCounted = false;
   private watchedSeconds = 0;
   private lastTime = 0;
+  private initialized = false;
 
-  ngAfterViewInit() {
+  ngAfterViewChecked() {
+    if (!this.initialized && this.videoCardComponent) {
+      this.initialized = true;
+      this.setupVideoTracking();
+    }
+  }
+  
+  setupVideoTracking() {
     const player = this.videoCardComponent.getVideoElement();
-    const videoId = this.videoData.uuid;
+    const videoId = this.videoData.id;
     const duration = this.videoData.duration;
     const STORAGE_KEY = 'viewedVideos';
     const now = new Date();
     const nowISO = now.toISOString();
-  
+
     let viewedVideos: viewedVideosI[] = [];
-  
+
     if (isPlatformBrowser(this.platformId)) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -134,44 +200,44 @@ export class MainVideoContentComponent implements OnInit, AfterViewInit {
         }
       }
     }
-  
+
     const videoEntry = viewedVideos.find(v => v.id === videoId);
     const viewIndex = videoEntry ? viewedVideos.indexOf(videoEntry) : -1;
-  
+
     // Resume from last timestamp if available
     if (this.resumeFromTime && !isNaN(this.resumeFromTime)) {
       player.currentTime = this.resumeFromTime;
     }
-  
+
     const isWithinOneHour = (last: string) => {
       const lastTime = new Date(last).getTime();
       return now.getTime() - lastTime < 60 * 60 * 1000; // 1 hour
     };
-  
+
     let currentCount = 0;
     let nextThresholdMultiplier = 1;
-  
+
     if (videoEntry && isWithinOneHour(videoEntry.lastViewedAt)) {
       currentCount = videoEntry.count;
       nextThresholdMultiplier = 1 + (currentCount * 0.2);
       if (currentCount >= 5) return;
     }
-  
+
     const requiredWatchTime = this.getViewThreshold(duration, nextThresholdMultiplier);
-  
+
     const onTimeUpdate = () => {
       const currentTime = player.currentTime;
       const delta = currentTime - this.lastTime;
-  
+
       if (delta > 0 && delta < 1.5) {
         this.watchedSeconds += delta;
       }
-  
+
       this.lastTime = currentTime;
-  
+
       if (!this.viewCounted && this.watchedSeconds >= requiredWatchTime) {
         this.viewCounted = true;
-  
+
         const updatedEntry = {
           id: videoId,
           lastViewedAt: nowISO,
@@ -181,25 +247,28 @@ export class MainVideoContentComponent implements OnInit, AfterViewInit {
             : [requiredWatchTime],
           lastTimestamp: currentTime, // save last watched position on view count
         };
-  
+
         if (viewIndex >= 0) {
           viewedVideos[viewIndex] = updatedEntry;
         } else {
           viewedVideos.push(updatedEntry);
         }
-  
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(viewedVideos));
         player.removeEventListener('timeupdate', onTimeUpdate);
-  
+
         this.incrementViewCount(videoId); // Backend API call
+        this.updateWatchHistory(videoId, currentTime);
+
       }
     };
-  
+
     const saveCurrentTime = () => {
       const currentTime = player.currentTime;
       const freshStored = localStorage.getItem(STORAGE_KEY);
       let updatedVideos: viewedVideosI[] = [];
-    
+console.log("Test");
+      this.updateWatchHistory(videoId, currentTime);
       if (freshStored) {
         try {
           updatedVideos = JSON.parse(freshStored);
@@ -207,7 +276,7 @@ export class MainVideoContentComponent implements OnInit, AfterViewInit {
           localStorage.removeItem(STORAGE_KEY);
         }
       }
-    
+
       const idx = updatedVideos.findIndex(v => v.id === videoId);
       if (idx !== -1) {
         updatedVideos[idx].lastTimestamp = currentTime;
@@ -220,23 +289,23 @@ export class MainVideoContentComponent implements OnInit, AfterViewInit {
           lastTimestamp: currentTime
         });
       }
-    
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedVideos));
     };
-    
-  
+
+
     // Save timestamp when paused
     player.addEventListener('pause', saveCurrentTime);
-  
+
     // Save timestamp when tab is hidden
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
         saveCurrentTime();
       }
     });
-  
+
     player.addEventListener('timeupdate', onTimeUpdate);
   }
-  
+
 
 }

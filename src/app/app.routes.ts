@@ -23,6 +23,8 @@ export const routes: Routes = [
       { path: "", component: VideoComponent },
       { path: "watch/:uuid", component: MainVideoContentComponent },
       { path: "results", component: SearchResultsComponent },
+      { path: "my-videos", component: SearchResultsComponent },
+      { path: "watch-history", component: SearchResultsComponent },
       {
         path: "upload",
         component: UploadComponent,

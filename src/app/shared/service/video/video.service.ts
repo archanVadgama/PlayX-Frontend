@@ -4,6 +4,11 @@ import { APIResponse, Environment, Video } from "@app/shared/types";
 import { environment } from "@env/environment";
 import { Observable } from "rxjs";
 
+export interface WatchHistory {
+  videoId: number, 
+  userId: number, 
+  lastTimeStamp: number
+}
 
 @Injectable({
   providedIn: "root",
@@ -36,6 +41,26 @@ export class VideoService {
     return this.http.get(`${this.apiUrl}/watch/${uuid}`, {
       withCredentials: true,
     });
+  }
+
+  getMyVideos(userId: number) {
+    return this.http.get(`${this.apiUrl}/my-videos/${userId}`, {
+      withCredentials: true,
+    });
+  }
+
+  getWatchHistory(uuid: string) {
+    return this.http.get(`${this.apiUrl}/watch-history/${uuid}`, {
+      withCredentials: true,
+    });
+  }
+
+  setWatchHistory(data: WatchHistory) {
+    console.log(data);
+    return this.http.post(`${this.apiUrl}/watch-history`, data,
+      {
+        withCredentials: true,
+      });
   }
   
   incrementViewCount(uuid: string) {

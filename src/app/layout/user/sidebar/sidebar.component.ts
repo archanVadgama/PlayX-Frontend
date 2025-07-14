@@ -7,6 +7,7 @@ import { AuthService } from "@app/auth/services/auth.service";
 import { ToastService } from "@app/shared/service/toast/toast.service";
 import { IsLoggedInService } from "@app/shared/service/is-logged-in/is-logged-in.service";
 import { ICONS } from "@app/shared/constant/icons";
+import { UploadProgressService } from "@app/shared/service/upload-progress/upload-progress.service";
 
 @Component({
   selector: "app-sidebar",
@@ -23,10 +24,13 @@ export class SidebarComponent implements OnInit{
     private sanitizer: DomSanitizer,
     private authService: AuthService,
     private isLoggedIn: IsLoggedInService,
-    private toast: ToastService
+    private toast: ToastService,
+    private uploadProgressService: UploadProgressService
   ) {}
   
   userMenuItems!: IMenuItem[];
+  uploadProgress: number | null = null;
+  uploadingType: 'video' | 'thumbnail' | null = null;
 
   /**
    * This method sets up the user menu items for the sidebar.
@@ -54,10 +58,10 @@ export class SidebarComponent implements OnInit{
         route: "/my-videos",
       },
       {
-        name: "Liked Videos",
+        name: "Watch History",
         icon: this.sanitizer
-          .bypassSecurityTrustHtml(ICONS.like),
-        route: "/liked-videos",
+          .bypassSecurityTrustHtml(ICONS.later),
+        route: "/watch-history",
       },
       {
         name: "Reported Content",
@@ -84,6 +88,16 @@ export class SidebarComponent implements OnInit{
 
   ngOnInit() {
     this.setupUserMenu();
+  
+    // 👇 Listen for upload progress
+    this.uploadProgressService.progress$.subscribe((value) => {
+      this.uploadProgress = value;
+    });
+
+    this.uploadProgressService.uploadingType$.subscribe((type) => {
+      this.uploadingType = type;
+    });
+    
   }
 
   logout() {

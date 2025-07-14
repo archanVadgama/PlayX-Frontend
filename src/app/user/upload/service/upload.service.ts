@@ -61,11 +61,17 @@ export class UploadService {
     }
 
     return this.http.post<APIResponse<null>>(
-      `${this.apiUrl}/upload-video`,
+      `${this.apiUrl}/generate-presigned-url`,
       formData,
       {
         withCredentials: true,
       }
     );
+  }
+
+  confirmUpload(videoIid: string) {
+    return this.http.post(`${this.apiUrl}/confirm-upload/${videoIid}`, {}, {
+      withCredentials: true
+    });
   }
 }

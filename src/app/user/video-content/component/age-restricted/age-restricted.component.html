@@ -1,0 +1,34 @@
+ <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div class="bg-white w-full max-w-sm p-6 rounded-2xl shadow-xl text-center space-y-5">
+
+      <!-- Icon -->
+      <div class="flex justify-center">
+        <div class="bg-red-100 text-red-600 p-3 rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4m0 4h.01M12 6a9 9 0 100 18 9 9 0 000-18z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Heading -->
+      <h2 class="text-xl font-semibold text-gray-800">Age Restricted Content</h2>
+
+      <!-- Description -->
+      <p class="text-sm text-gray-500">
+        You must be at least <span class="font-medium text-gray-700">18 years old</span> to view this content.
+        Please confirm your age to proceed.
+      </p>
+
+      <!-- Buttons -->
+      <div class="flex gap-4 justify-center pt-2">
+          <button (click)="cancel()" class="px-5 py-2 text-sm font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+            Cancel
+          </button>
+        <button (click)="confirm()" class="px-5 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+          I am 18+
+        </button>
+      </div>
+    </div>
+  </div>

@@ -18,6 +18,8 @@ import { CommonModule } from "@angular/common";
 import { FileUploadComponent } from "@app/shared/component/file-upload/file-upload.component";
 import { UploadRequest } from "../../types/upload.types";
 import { AppTitleService } from "@app/shared/service/app-title/app-title.service";
+import { HttpClient, HttpRequest, HttpHeaders, HttpEventType } from "@angular/common/http";
+import { UploadProgressService } from "@app/shared/service/upload-progress/upload-progress.service";
 
 @Component({
   selector: "app-upload",
@@ -36,11 +38,17 @@ export class UploadComponent implements OnInit{
   isSubmitting = false;
   isAgeRestricted = false;
   isPrivate = false;
+  uploadProgress = 0;
+  uploadingType: 'video' | 'thumbnail' | null = null;
+  videoFile!: File; // Declare videoFile property
+  thumbnailFile!: File; // Declare thumbnailFile property
   constructor(
+    private http: HttpClient,
     private router: Router,
     private toast: ToastService,
     private uploadVideo: UploadService,
-    private appTitle: AppTitleService
+    private appTitle: AppTitleService,
+    private uploadProgressService: UploadProgressService
   ) {}
 
   ngOnInit(): void {
@@ -75,11 +83,11 @@ export class UploadComponent implements OnInit{
     }),
     thumbnail: new FormControl<File | null>(null, [
       Validators.required,
-      this.fileTypeValidator(["image/png", "image/jpg", "image/jpeg"]),
+      this.fileValidator(["image/png", "image/jpg", "image/jpeg"], 5),
     ]),
     video: new FormControl<File | null>(null, [
       Validators.required,
-      this.fileTypeValidator(["video/mp4"]),
+      this.fileValidator(["video/mp4"], 500),
     ]),
     isAgeRestricted: new FormControl<boolean>(false, {
       nonNullable: true,
@@ -162,7 +170,21 @@ export class UploadComponent implements OnInit{
       return;
     }
   }
-
+  fileValidator(allowedTypes: string[], maxSizeMB: number) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const file = control.value;
+      if (file && file instanceof File) {
+        const isValidType = allowedTypes.includes(file.type);
+        const isValidSize = file.size <= maxSizeMB * 1024 * 1024;
+        return isValidType && isValidSize ? null : {
+          ...(isValidType ? {} : { invalidFileType: true }),
+          ...(isValidSize ? {} : { fileTooLarge: true })
+        };
+      }
+      return null;
+    };
+  }
+  
   /**
    * This function will submit the form and hit the upload video API.
    *
@@ -171,20 +193,66 @@ export class UploadComponent implements OnInit{
   submitForm() {
     if (this.uploadVideoForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-
+  
       const formData = this.uploadVideoForm.value as UploadRequest;
+  
+      this.videoFile = this.uploadVideoForm.get('video')?.value!;
+      this.thumbnailFile = this.uploadVideoForm.get('thumbnail')?.value!;
+  
+      if (!this.videoFile || !this.thumbnailFile) {
+        this.toast.show("error", "Both video and thumbnail files are required.");
+        this.isSubmitting = false;
+        return;
+      }
+  
       this.uploadVideo.uploadVideo(formData).subscribe({
-        next: (response: APIResponse<null>) => {
-          if (response.status) {
-            this.toast.show("success", response.message!);
+        next: (response: APIResponse<any>) => {
+          if (response.status && response.data) {
+            const {
+              videoUrl,
+              thumbnailUrl,
+              videoKey,
+              thumbnailKey,
+              videoId,
+            } = response.data;
+  
+            this.toast.show("warning", "Upload started in background.");
+            // ✅ FIRE-AND-FORGET: Upload in background
+            setTimeout(() => {
+              this.uploadToS3(this.thumbnailFile, thumbnailUrl, thumbnailKey, 'image/jpeg', formData, () => {
+                this.uploadToS3(this.videoFile, videoUrl, videoKey, 'video/mp4', formData, () => {            
+
+                  this.uploadVideo.confirmUpload(videoId).subscribe({
+                    next: (confirmResponse: any) => {
+                      if (confirmResponse.status) {
+                        console.log("Upload confirmed successfully.");
+                        this.toast.show("success", "Upload completed successfully");
+                      } else {
+                        this.toast.show("error", confirmResponse.message || "Failed to confirm upload.");
+                      }
+                    },
+                    error: (confirmError) => {
+                      console.error("Error confirming upload:", confirmError);
+                      this.toast.show("error", "Failed to confirm upload.");
+                    }
+                  });
+
+                });
+              });
+            }, 0); // ⏱️ Run in background
+             // ⏱️ Push to event loop, run in background
+  
+            // ✅ Show success, redirect, reset
             this.isSubmitting = false;
-            this.router.navigate(["/"]);
+            this.router.navigate(["/"]); // Redirect immediately
+          } else {
+            this.toast.show("error", "Upload initialization failed.");
+            this.isSubmitting = false;
           }
         },
         error: (err) => {
           this.isSubmitting = false;
-          if (err.error && err.error.data) {
-            // Handle server-side errors and set them for the form fields
+          if (err.error?.data) {
             Object.keys(err.error.data).forEach((field: string) => {
               const message = err.error.data[field];
               const control = this.uploadVideoForm.get(field);
@@ -193,13 +261,58 @@ export class UploadComponent implements OnInit{
               }
             });
           }
-          this.toast.show("error", err.error.message!);
+          this.toast.show("error", err.error.message || "Unexpected error occurred.");
         },
       });
     }
   }
+     
+  uploadToS3(
+    file: File,
+    signedUrl: string,
+    s3Key: string,
+    contentType: string,
+    metadata: UploadRequest,
+    onComplete: () => void
+  ) {
+    this.uploadProgressService.setType(contentType === 'video/mp4' ? 'video' : 'thumbnail');
+    console.log("Uploading Type:", contentType);
+
+    const xhr = new XMLHttpRequest();
+  
+    xhr.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((100 * event.loaded) / event.total);
+        this.uploadProgressService.setProgress(percent);
+      }
+    });
+  
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          this.uploadingType = null;
+          this.uploadProgressService.setProgress(null);
+          console.log("Upload complete.");
+          onComplete();
+        } else {
+          this.uploadingType = null;
+          this.uploadProgressService.setProgress(null);
+          console.error("Upload failed", xhr.statusText);
+          this.toast.show("error", `Upload failed: ${xhr.statusText}`);
+          this.isSubmitting = false;
+        }
+      }
+    };
+  
+    xhr.open("PUT", signedUrl, true);
+    xhr.setRequestHeader("Content-Type", contentType);
+    xhr.send(file);
+  }
+  
+  
 
   goToHomePage() {
     this.router.navigate(["/"]);
   }
 }
+ 
