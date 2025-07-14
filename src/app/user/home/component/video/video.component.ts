@@ -31,7 +31,6 @@ export class VideoComponent implements OnInit, OnDestroy {
     private router: Router,
     private video: VideoService,
     private appTitle: AppTitleService
-    
   ) {}
 
   /**
@@ -226,4 +225,6 @@ export class VideoComponent implements OnInit, OnDestroy {
   onCardClick(uuid: string): void {
     this.router.navigate(["/watch", uuid]);
   }
+
+  
 }

@@ -1,10 +1,10 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Environment } from '@app/shared/types';
-import { environment } from '@env/environment';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Environment } from "@app/shared/types";
+import { environment } from "@env/environment";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class SearchService {
   apiUrl = (environment as Environment).apiUrl;
@@ -18,10 +18,15 @@ export class SearchService {
    * @param {string} [sortBy]
    * @param {string} [duration]
    * @param {string} [uploadDate]
-   * @return {*} 
+   * @return {*}
    * @memberof SearchService
    */
-  serachResult(searchQuery: string, sortBy?: string, duration?: string, uploadDate?: string) {
+  searchResult(
+    searchQuery: string,
+    sortBy?: string,
+    duration?: string,
+    uploadDate?: string
+  ) {
     const params: any = { search_query: searchQuery };
     if (sortBy) params.sort_by = sortBy;
     if (duration) params.duration = duration;

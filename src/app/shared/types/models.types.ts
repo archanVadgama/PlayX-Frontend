@@ -19,6 +19,9 @@ export interface VideoUser {
 export interface Video {
   profileImg: string;
   userId: number;
+  isAgeRestricted?: boolean
+  isPrivate?: boolean
+  isUploaded?: boolean
   uuid: string;
   title: string;
   duration: number;

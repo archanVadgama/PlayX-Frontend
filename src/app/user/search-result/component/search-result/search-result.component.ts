@@ -15,6 +15,9 @@ import { TimeAgoPipe } from "@app/shared/pipes/time-ago/time-ago.pipe";
 import { ActivatedRoute, Router } from "@angular/router";
 import { DurationPipe } from "@app/shared/pipes/duration/duration.pipe";
 import { isPlatformBrowser } from "@angular/common";
+import { VideoService } from "@app/shared/service/video/video.service";
+import { CookieService } from "ngx-cookie-service";
+import { JwtHelperService } from "@auth0/angular-jwt";
 
 @Component({
   selector: "app-search-result",
@@ -36,14 +39,18 @@ export class SearchResultsComponent implements OnInit {
   scrollHandler: any;
   showPlaceholder = true; // Flag to control placeholder visibility
   isFirstLoad = true; // Flag to track the first load
+  componentTitle: string = "";
 
   placeholderArray = [{ id: 1 }, { id: 2 }, { id: 3 }];
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private route: ActivatedRoute,
     private router: Router,
+    private video: VideoService,
     private appTitle: AppTitleService,
-    private search: SearchService
+    private search: SearchService,
+    private cookieService: CookieService,
+    private jwtHelper: JwtHelperService
   ) {}
 
   /**
@@ -52,38 +59,131 @@ export class SearchResultsComponent implements OnInit {
    * @memberof SearchResultsComponent
    */
   ngOnInit(): void {
-    this.appTitle.setTitle("Search Results");
-    if (isPlatformBrowser(this.platformId)) {
-      this.loadMoreVideos();
+    const currentUrl = this.router.url;
+    console.log(currentUrl);
+  
+    switch (true) {
+      case currentUrl.includes("my-videos"):
+        this.componentTitle = "My Videos";
+        this.appTitle.setTitle(this.componentTitle);
+        this.fetchMyVideos();
+        break;
+  
+      case currentUrl.includes("watch-history"):
+        this.componentTitle = "Watch History";
+        this.appTitle.setTitle(this.componentTitle);
+  
+        if (isPlatformBrowser(this.platformId)) {
+          this.fetchWatchHistory();
+  
+          this.scrollHandler = this.onScroll.bind(this);
+          window.addEventListener("scroll", this.scrollHandler);
+        }
+        break;
+  
+      default:
+        this.componentTitle = "Search Results";
+        this.appTitle.setTitle(this.componentTitle);
+  
+        this.route.queryParams.subscribe((params) => {
+          const searchQuery = params["search_query"] || "";
+          const sortBy = params["sort_by"] || "";
+          const duration = params["duration"] || "";
+          const uploadDate = params["upload_date"] || "";
+  
+          if (searchQuery.trim() === "") {
+            this.videos = [];
+            return;
+          }
+  
+          this.search.searchResult(searchQuery, sortBy, duration, uploadDate).subscribe({
+            next: (res) => {
+              const response = res as APIResponse<any[]>;
+              this.videos = response.data;
+              this.loadMoreVideos();
+            },
+            error: () => {
+              this.videos = [];
+            },
+          });
+        });
+        break;
+    }
+  }
+  
 
-      this.scrollHandler = this.onScroll.bind(this);
-      window.addEventListener("scroll", this.scrollHandler);
+  fetchMyVideos(): void {
+    const accessToken = this.cookieService.get("accessToken");
+
+    if (!accessToken) {
+      console.log("No access token found", accessToken);
+      this.router.navigate(["/log-in"]);
     }
 
-    // Subscribe to query parameters to get search results
-    this.route.queryParams.subscribe((params) => {
-      const searchQuery = params["search_query"] || "";
-      const sortBy = params["sort_by"] || "";
-      const duration = params["duration"] || "";
-      const uploadDate = params["upload_date"] || "";
-
-      // Perform the search with the provided parameters
-      if (searchQuery.trim() === "") {
-        this.videos = []; // Clear videos if search query is empty
-        return;
+    try {
+      // Verify the token and decode it
+      if (this.jwtHelper.isTokenExpired(accessToken)) {
+        this.router.navigate(["/log-in"]);
       }
-      this.search
-        .serachResult(searchQuery, sortBy, duration, uploadDate)
-        .subscribe({
-          next: (res) => {
-            const response = res as APIResponse<Video[]>;
-            this.videos = response.data;
-          },
-          error: (error) => {
-            this.videos = []; // Optional: clear existing videos
-          },
-        });
-    });
+
+      // Get the payload from the token
+      const decodedToken = this.jwtHelper.decodeToken(accessToken);
+      const userId = Number(atob(decodedToken.id));
+      console.log("User ID:", userId);
+      this.video.getMyVideos(userId).subscribe({
+        next: (res) => {
+          const response = res as APIResponse<any[]>;
+          this.videos = response.data;
+
+          // Load the first batch of videos after fetching
+          this.loadMoreVideos();
+        },
+        error: () => {
+          this.videos = [];
+        },
+      });
+    } catch (error) {
+      // Error decoding the token
+      console.error("Error verifying token:", error);
+      this.router.navigate(["/"]);
+    }
+  }
+
+  fetchWatchHistory(): void {
+    const accessToken = this.cookieService.get("accessToken");
+
+    if (!accessToken) {
+      console.log("No access token found", accessToken);
+      this.router.navigate(["/log-in"]);
+    }
+
+    try {
+      // Verify the token and decode it
+      if (this.jwtHelper.isTokenExpired(accessToken)) {
+        this.router.navigate(["/log-in"]);
+      }
+
+      // Get the payload from the token
+      const decodedToken = this.jwtHelper.decodeToken(accessToken);
+      const userId = atob(decodedToken.id);
+
+      this.video.getWatchHistory(userId).subscribe({
+        next: (res) => {
+          const response = res as APIResponse<any[]>;
+          this.videos = response.data;
+
+          // Load the first batch of videos after fetching
+          this.loadMoreVideos();
+        },
+        error: () => {
+          this.videos = [];
+        },
+      });
+    } catch (error) {
+      // Error decoding the token
+      console.error("Error verifying token:", error);
+      this.router.navigate(["/"]);
+    }
   }
 
   /**
@@ -126,7 +226,7 @@ export class SearchResultsComponent implements OnInit {
 
     this.isLoading = true;
 
-    const nextItemsToLoad = this.isFirstLoad ? this.itemsPerLoad : 10; // Load 15 on first load, 10 on subsequent scrolls
+    const nextItemsToLoad = this.isFirstLoad ? this.itemsPerLoad : 10;
     const nextVideos = this.videos.slice(
       this.currentIndex,
       this.currentIndex + nextItemsToLoad
@@ -134,7 +234,6 @@ export class SearchResultsComponent implements OnInit {
     this.videosToShow.push(...nextVideos);
     this.currentIndex += nextItemsToLoad;
 
-    // After first load, set the flag to load 10 items on scroll
     if (this.isFirstLoad) {
       this.isFirstLoad = false;
     }
